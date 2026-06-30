@@ -1,0 +1,74 @@
+#include "ps2_task.h"
+#include "chassis_task.h"
+
+#define PS2_TASK_PERIOD_MS  30
+
+static void PS2_Ctrl_Chassis(PS2_Info_Typedef *PS2, Chassis_Info_Typedef *Chassis);
+static void PS2_Mode_Switch(PS2_Info_Typedef *PS2, Chassis_Info_Typedef *Chassis);
+
+void PS2_task(void)
+{
+    while (1)
+    {
+        PS2_ScanKey(&PS2_Info);
+        PS2_Mode_Switch(&PS2_Info, &Chassis);
+        PS2_Ctrl_Chassis(&PS2_Info, &Chassis);
+        osDelay(PS2_TASK_PERIOD_MS);
+    }
+}
+
+/**
+ * @brief  PS2 START键切换控制模式 (RC ↔ NAV)
+ */
+static void PS2_Mode_Switch(PS2_Info_Typedef *PS2, Chassis_Info_Typedef *Chassis)
+{
+    static uint8_t start_last = 0;
+
+    if (PS2->PS2_buff[2] != 0x5A)
+        return;
+
+    if (PS2->Data.PS2_START && !start_last)  /* 上升沿 */
+    {
+        if (Chassis->mode == CHASSIS_MODE_RC)
+            Chassis->mode = CHASSIS_MODE_NAV;
+        else
+            Chassis->mode = CHASSIS_MODE_RC;
+    }
+    start_last = PS2->Data.PS2_START;
+}
+
+/**
+ * @brief  PS2 遥控器控制底盘 (仅 RC 模式生效)
+ */
+static void PS2_Ctrl_Chassis(PS2_Info_Typedef *PS2, Chassis_Info_Typedef *Chassis)
+{
+    if (Chassis->mode != CHASSIS_MODE_RC)
+        return;
+
+    if (PS2->PS2_buff[2] != 0x5A)
+        return;
+
+    /* 摇杆→速度 */
+    int16_t jx = PS2_LRC_UD(PS2);
+    int16_t jy = PS2_LRC_LR(PS2);
+    int16_t jz = PS2_RRC_LR(PS2);
+
+    if (PS2->Data.mode == PS2_MODE_RED)
+    {
+        float vx = (float)jx / PS2_RC_MAX * CHASSIS_MAX_V;
+        float vy = (float)jy / PS2_RC_MAX * CHASSIS_MAX_V;
+        float wz = (float)jz / PS2_RC_MAX * CHASSIS_MAX_W;
+        Chassis_Set_Velocity(Chassis, vx, vy, wz);
+    }
+    else
+    {
+        float vx = 0, vy = 0, wz = 0;
+        if (PS2->Data.PS2_UP)    vx =  CHASSIS_MAX_V;
+        if (PS2->Data.PS2_DOWN)  vx = -CHASSIS_MAX_V;
+        if (PS2->Data.PS2_LEFT)  wz =  CHASSIS_MAX_W;
+        if (PS2->Data.PS2_RIGHT) wz = -CHASSIS_MAX_W;
+        if (PS2->Data.PS2_L1)    wz = -2.5f;
+        if (PS2->Data.PS2_R1)    wz =  2.5f;
+        Chassis_Set_Velocity(Chassis, vx, vy, wz);
+    }
+}
