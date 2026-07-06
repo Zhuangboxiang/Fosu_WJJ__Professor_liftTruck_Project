@@ -51,7 +51,7 @@ static void PS2_Ctrl_Chassis(PS2_Info_Typedef *PS2, Chassis_Info_Typedef *Chassi
     /* 摇杆→速度 */
     int16_t jx = PS2_LRC_UD(PS2);
     int16_t jy = PS2_LRC_LR(PS2);
-    int16_t jz = PS2_RRC_LR(PS2);
+    int16_t jz = -PS2_RRC_LR(PS2);
 
     if (PS2->Data.mode == PS2_MODE_RED)
     {
@@ -65,8 +65,8 @@ static void PS2_Ctrl_Chassis(PS2_Info_Typedef *PS2, Chassis_Info_Typedef *Chassi
         float vx = 0, vy = 0, wz = 0;
         if (PS2->Data.PS2_UP)    vx =  CHASSIS_MAX_V;
         if (PS2->Data.PS2_DOWN)  vx = -CHASSIS_MAX_V;
-        if (PS2->Data.PS2_LEFT)  wz =  CHASSIS_MAX_W;
-        if (PS2->Data.PS2_RIGHT) wz = -CHASSIS_MAX_W;
+        if (PS2->Data.PS2_LEFT)  vy =  CHASSIS_MAX_V;
+        if (PS2->Data.PS2_RIGHT) vy = -CHASSIS_MAX_V;
         if (PS2->Data.PS2_L1)    wz = -2.5f;
         if (PS2->Data.PS2_R1)    wz =  2.5f;
         Chassis_Set_Velocity(Chassis, vx, vy, wz);

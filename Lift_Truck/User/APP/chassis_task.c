@@ -29,7 +29,8 @@
 #include "PC_Comm.h"
 
 /* Private define ------------------------------------------------------------*/
-#define RPM_TO_MOTOR(r)  ((int16_t)((r) * Stepper_Ratio))
+#define RPM_TO_MOTOR(r)     ((int16_t)((r) * Stepper_Ratio))
+#define MOTOR_RPM_TO_MS(m)  ((m) / Stepper_Ratio / WHEEL_RAD_TO_RPM)  /* 电机端RPM → 轮端线速度 [m/s] */
 
 /* Global variable -----------------------------------------------------------*/
 Chassis_Info_Typedef Chassis = {
@@ -41,12 +42,17 @@ Chassis_Info_Typedef Chassis = {
         .Set.motor_Addr = 2,
         .Set.Firmware_v = Firmware_Emm,
     },
-    .mode       = CHASSIS_MODE_RC,
-    .vx_target  = 0,
-    .vy_target  = 0,
-    .wz_target  = 0,
-    .pc_speed   = {0},
-    .init_flag  = 0,
+    .mode          = CHASSIS_MODE_RC,
+    .vx_target     = 0,
+    .vy_target     = 0,
+    .wz_target     = 0,
+    .vx_actual     = 0,
+    .vy_actual     = 0,
+    .wz_actual     = 0,
+    .rpm_L_target  = 0,
+    .rpm_R_target  = 0,
+    .pc_speed      = {0},
+    .init_flag     = 0,
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -55,6 +61,7 @@ static void Chassis_NAV_Mode_Handler(Chassis_Info_Typedef *chassis);
 static void Chassis_Mode_Dispatch(Chassis_Info_Typedef *chassis);
 static void Chassis_Motor_Output(Chassis_Info_Typedef *chassis);
 static void Diff_Wheel_Calc(Chassis_Info_Typedef *chassis, float vx, float vy, float wz);
+static void Chassis_Actual_Calc(Chassis_Info_Typedef *chassis);
 
 /* ---------------------------------------------------------------------------*/
 /*                            Public Functions                                */
@@ -65,13 +72,25 @@ static void Diff_Wheel_Calc(Chassis_Info_Typedef *chassis, float vx, float vy, f
  */
 void chassis_task(void)
 {
+    uint32_t tick = 0;
+    uint8_t query_idx = 0;  /* 轮询索引: 0=左轮, 1=右轮 */
+
     Chassis_Init(&Chassis);
 
     while (1)
     {
         Chassis_Mode_Dispatch(&Chassis);                         /* 按模式分发控制逻辑 */
         Chassis_Motor_Output(&Chassis);                          /* 统一输出到电机 */
+        Chassis_Actual_Calc(&Chassis);                           /* 正解算: 电机反馈 → vx/wz */
+       // PC_Info_Upload(Chassis.vx_actual, Chassis.vy_actual, Chassis.wz_actual);
         PC_Info_Upload(Chassis.vx_target, Chassis.vy_target, Chassis.wz_target);
+        /* 每50ms轮询一个电机的反馈数据 (0x43查询) */
+        if (++tick >= 50)
+        {
+            tick = 0;
+            Stepper_Motor_Call_Info(&Chassis.Motor[query_idx], 5u);
+            query_idx = (query_idx == 0) ? 1 : 0;
+        }
 
         osDelay(1);
     }
@@ -190,13 +209,37 @@ static void Diff_Wheel_Calc(Chassis_Info_Typedef *chassis, float vx, float vy, f
 {
     (void)vy;  /* 差速轮无横向运动能力，vy 保留仅用于通信兼容 */
     float half_track = CHASSIS_TRACK_WIDTH * 0.5f;
-
+    wz = -wz;                              /* 输入 wz 符号取反 */
     float vL = vx - wz * half_track;  /* 左轮线速度 [m/s] */
     float vR = vx + wz * half_track;  /* 右轮线速度 [m/s] */
 
     float rpm_L = vL * WHEEL_RAD_TO_RPM;
     float rpm_R = vR * WHEEL_RAD_TO_RPM;
 
-    Stepper_Motor_Set_Speed(&chassis->Motor[WHEEL_L], RPM_TO_MOTOR(rpm_L), 0, 3);
-    Stepper_Motor_Set_Speed(&chassis->Motor[WHEEL_R], RPM_TO_MOTOR(rpm_R), 0, 3);
+    int16_t motor_L = RPM_TO_MOTOR(-rpm_L);/* 左轮反装，取反 */
+    int16_t motor_R = RPM_TO_MOTOR(rpm_R);  
+
+    chassis->rpm_L_target = (float)motor_L;  /* 记录目标值 (电机端, 含减速比) */
+    chassis->rpm_R_target = (float)motor_R;
+
+    Stepper_Motor_Set_Speed(&chassis->Motor[WHEEL_L], motor_L, 0, 3);
+    Stepper_Motor_Set_Speed(&chassis->Motor[WHEEL_R], motor_R, 0, 3);
+}
+
+/**
+ * @brief  差速轮正运动学: 电机反馈转速 → vx/wz [m/s, rad/s]
+ * @note   从编码器反馈的电机端RPM反算实际底盘线速度和角速度
+ *
+ *   vx = (vR + vL) / 2
+ *   wz = (vR - vL) / d
+ *   (d = CHASSIS_TRACK_WIDTH)
+ *   右轮因反装，反馈转速取反
+ */
+static void Chassis_Actual_Calc(Chassis_Info_Typedef *chassis)
+{
+    float vL = -MOTOR_RPM_TO_MS( chassis->Motor[WHEEL_L].Data.speed);  /* 左轮线速度 [m/s] (反装取反) */
+    float vR =  MOTOR_RPM_TO_MS( chassis->Motor[WHEEL_R].Data.speed);  /* 右轮线速度 [m/s] */
+
+    chassis->vx_actual = (vR + vL) * 0.5f;
+    chassis->wz_actual = (vR - vL) / CHASSIS_TRACK_WIDTH;
 }
