@@ -35,11 +35,15 @@
 /* Global variable -----------------------------------------------------------*/
 Chassis_Info_Typedef Chassis = {
     .Motor[WHEEL_L] = {
-        .Set.motor_Addr = 1,
+        .Set.motor_Addr = 3,
         .Set.Firmware_v = Firmware_Emm,
     },
     .Motor[WHEEL_R] = {
         .Set.motor_Addr = 2,
+        .Set.Firmware_v = Firmware_Emm,
+    },
+    .Motor[LIFT] = {
+        .Set.motor_Addr = LIFT_MOTOR_ADDR,
         .Set.Firmware_v = Firmware_Emm,
     },
     .mode          = CHASSIS_MODE_RC,
@@ -53,6 +57,8 @@ Chassis_Info_Typedef Chassis = {
     .rpm_R_target  = 0,
     .pc_speed      = {0},
     .init_flag     = 0,
+    .lift_target_height = 0,
+    .lift_cur_height    = 0,
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -62,6 +68,7 @@ static void Chassis_Mode_Dispatch(Chassis_Info_Typedef *chassis);
 static void Chassis_Motor_Output(Chassis_Info_Typedef *chassis);
 static void Diff_Wheel_Calc(Chassis_Info_Typedef *chassis, float vx, float vy, float wz);
 static void Chassis_Actual_Calc(Chassis_Info_Typedef *chassis);
+static void Lift_Control(Chassis_Info_Typedef *chassis);
 
 /* ---------------------------------------------------------------------------*/
 /*                            Public Functions                                */
@@ -73,7 +80,7 @@ static void Chassis_Actual_Calc(Chassis_Info_Typedef *chassis);
 void chassis_task(void)
 {
     uint32_t tick = 0;
-    uint8_t query_idx = 0;  /* 轮询索引: 0=左轮, 1=右轮 */
+    uint8_t query_idx = 0;  /* 轮询索引: 0=左轮, 1=右轮, 2=抬升 */
 
     Chassis_Init(&Chassis);
 
@@ -82,6 +89,7 @@ void chassis_task(void)
         Chassis_Mode_Dispatch(&Chassis);                         /* 按模式分发控制逻辑 */
         Chassis_Motor_Output(&Chassis);                          /* 统一输出到电机 */
         Chassis_Actual_Calc(&Chassis);                           /* 正解算: 电机反馈 → vx/wz */
+        Lift_Control(&Chassis);                                  /* 抬升控制 */
        // PC_Info_Upload(Chassis.vx_actual, Chassis.vy_actual, Chassis.wz_actual);
         PC_Info_Upload(Chassis.vx_target, Chassis.vy_target, Chassis.wz_target);
         /* 每50ms轮询一个电机的反馈数据 (0x43查询) */
@@ -89,7 +97,7 @@ void chassis_task(void)
         {
             tick = 0;
             Stepper_Motor_Call_Info(&Chassis.Motor[query_idx], 5u);
-            query_idx = (query_idx == 0) ? 1 : 0;
+            query_idx = (query_idx + 1) % 3;  /* 三电机轮询 */
         }
 
         osDelay(1);
@@ -101,10 +109,12 @@ void chassis_task(void)
  */
 void Chassis_Init(Chassis_Info_Typedef *chassis)
 {
-    for (uint8_t i = 0; i < 2; i++)
+    for (uint8_t i = 0; i < 3; i++)
     {
         Stepper_Motor_Set_Cmd(&chassis->Motor[i], Stepper_Enable, 10u);
     }
+    /* 丝杆电机: 断电记忆位置, 上电自动恢复 */
+  //  Stepper_Motor_Set_Zero_Cmd(&chassis->Motor[LIFT], Zero_Last_Power_Off, 10);
     osDelay(500);
     chassis->init_flag = 1;
 }
@@ -242,4 +252,48 @@ static void Chassis_Actual_Calc(Chassis_Info_Typedef *chassis)
 
     chassis->vx_actual = (vR + vL) * 0.5f;
     chassis->wz_actual = (vR - vL) / CHASSIS_TRACK_WIDTH;
+}
+
+/* ---------------------------------------------------------------------------*/
+/*                         Lift Control Layer                                 */
+/* ---------------------------------------------------------------------------*/
+
+/**
+ * @brief  抬升零位设置 (当前位置=0mm)
+ */
+void Chassis_Lift_Home(Chassis_Info_Typedef *chassis)
+{
+    Stepper_Motor_Set_Zero_Cmd(&chassis->Motor[LIFT], Zero_Abs, 0);
+    Stepper_Motor_Set_Zero(&chassis->Motor[LIFT], 0);
+    chassis->lift_target_height = 0;
+}
+
+/**
+ * @brief  设置抬升目标高度
+ */
+void Chassis_Lift_Set_Height(Chassis_Info_Typedef *chassis, float height_mm)
+{
+    VAL_LIMIT(height_mm, LIFT_MIN_HEIGHT, LIFT_MAX_HEIGHT);
+    chassis->lift_target_height = height_mm;
+}
+
+/**
+ * @brief  抬升控制: 每主循环周期 (1ms)  
+ * @note   检测到目标变化时发送绝对位置指令; 每周期刷新当前高度
+ */
+static void Lift_Control(Chassis_Info_Typedef *chassis)
+{
+    static float last_height = -1.0f;
+
+    /* 从编码器反馈刷新当前高度 */
+    chassis->lift_cur_height = ANGLE_TO_HEIGHT(chassis->Motor[LIFT].Data.pos);
+
+    /* 目标变化 → 发绝对位置指令 */
+    if (fabsf(chassis->lift_target_height - last_height) > 0.01f)
+    {
+        last_height = chassis->lift_target_height;
+        float angle = HEIGHT_TO_ANGLE(chassis->lift_target_height);
+        Stepper_Motor_Set_Pos(&chassis->Motor[LIFT], LIFT_SPEED, LIFT_ACCEL,
+                              angle, Pos_Mode_Abs_To_Zero, 0);
+    }
 }

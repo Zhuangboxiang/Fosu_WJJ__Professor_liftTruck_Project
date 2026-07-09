@@ -70,5 +70,18 @@ static void PS2_Ctrl_Chassis(PS2_Info_Typedef *PS2, Chassis_Info_Typedef *Chassi
         if (PS2->Data.PS2_L1)    wz = -2.5f;
         if (PS2->Data.PS2_R1)    wz =  2.5f;
         Chassis_Set_Velocity(Chassis, vx, vy, wz);
+
+        /* ---- 丝杆抬升控制 ---- */
+        /* 三角键: 当前位置设为零点 (上升沿) */
+        static uint8_t tri_last = 0;
+        if (PS2->Data.PS2_TRI && !tri_last)
+            Chassis_Lift_Home(Chassis);
+        tri_last = PS2->Data.PS2_TRI;
+
+        /* L2/R2: 调整目标高度 (2mm/周期), 状态机自动处理绝对定位 */
+        if (PS2->Data.PS2_L2)
+            Chassis_Lift_Set_Height(Chassis, Chassis->lift_target_height + 2.0f);
+        if (PS2->Data.PS2_R2)
+            Chassis_Lift_Set_Height(Chassis, Chassis->lift_target_height - 2.0f);
     }
 }
