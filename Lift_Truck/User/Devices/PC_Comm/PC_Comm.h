@@ -25,7 +25,7 @@
 
 #define PC_RX_HEAD						0x5A		/* 包头(上位机→小车) */
 #define PC_RX_TAIL						0xA5		/* 包尾(上位机→小车) */
-#define PC_RX_FRAME_LEN					15u			/* 接收帧: 包头(1)+vx(4)+vy(4)+vw(4)+校验(1)+包尾(1) */
+#define PC_RX_FRAME_LEN					19u			/* 接收帧: HEAD(1)+Vx(4)+Vy(4)+Vw(4)+H(4)+校验(1)+TAIL(1) */
 
 /* Enums -------------------------------------------------------------------- */
 
@@ -47,8 +47,8 @@ typedef struct __attribute__((packed)) {
     PC_turn_Typedef  Vx;		/* X方向速度 [m/s] */
     PC_turn_Typedef  Vy;		/* Y方向速度 [m/s] */
     PC_turn_Typedef  Vw;		/* Z方向角速度 [rad/s] */
-    int32_t Reserved1;			/* 保留位1 */
-    int32_t Reserved2;			/* 保留位2 */
+    PC_turn_Typedef  Bat_Pct;	/* 电池电量 [%] */
+    PC_turn_Typedef  Lift_H;	/* 丝杆当前高度 [mm] */
     uint8_t Checksum;			/* 校验和 (前21字节异或) */
 } PC_TxFrame_Typedef;
 

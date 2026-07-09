@@ -3,7 +3,7 @@
 <title>Static Call Graph - [CtrlBoard-H7_IMU\CtrlBoard-H7_IMU.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image CtrlBoard-H7_IMU\CtrlBoard-H7_IMU.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6160001: Last Updated: Thu Jul  9 09:33:56 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6160001: Last Updated: Thu Jul  9 16:17:32 2026
 <BR><P>
 <H3>Maximum Stack Usage =        560 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -607,8 +607,8 @@ Global Symbols
 <LI><a href="#[e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DWT_SysTimeUpdate
 </UL>
 
-<P><STRONG><a name="[1c3]"></a>__aeabi_memcpy</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, memcpya.o(.text))
-<BR><BR>[Called By]<UL><LI><a href="#[1c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PC_Info_Upload
+<P><STRONG><a name="[1c4]"></a>__aeabi_memcpy</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, memcpya.o(.text))
+<BR><BR>[Called By]<UL><LI><a href="#[1c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PC_Info_Upload
 </UL>
 
 <P><STRONG><a name="[110]"></a>__aeabi_memcpy4</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memcpya.o(.text))
@@ -750,7 +750,7 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_TransmitPacket
 <LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_SetTxBuffer
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PC_Info_Upload
+<BR>[Called By]<UL><LI><a href="#[1c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PC_Info_Upload
 </UL>
 
 <P><STRONG><a name="[b3]"></a>CHASSIS_Task</STRONG> (Thumb, 14 bytes, Stack size 16 bytes, freertos.o(.text.CHASSIS_Task))
@@ -760,34 +760,35 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> freertos.o(.rodata..L__const.MX_FREERTOS_Init.os_thread_def_CHASSIS_TASK)
 </UL>
-<P><STRONG><a name="[d8]"></a>Chassis_Init</STRONG> (Thumb, 78 bytes, Stack size 16 bytes, chassis_task.o(.text.Chassis_Init))
-<BR><BR>[Stack]<UL><LI>Max Depth = 156<LI>Call Chain = Chassis_Init &rArr; Stepper_Motor_Set_Cmd &rArr; osDelay &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick &rArr; vListInsertEnd
+<P><STRONG><a name="[d8]"></a>Chassis_Init</STRONG> (Thumb, 150 bytes, Stack size 24 bytes, chassis_task.o(.text.Chassis_Init))
+<BR><BR>[Stack]<UL><LI>Max Depth = 164<LI>Call Chain = Chassis_Init &rArr; Stepper_Motor_Set_Cmd &rArr; osDelay &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick &rArr; vListInsertEnd
 </UL>
-<BR>[Calls]<UL><LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
-<LI><a href="#[d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Set_Cmd
+<BR>[Calls]<UL><LI><a href="#[db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
+<LI><a href="#[d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Set_Zero_Info
+<LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Set_Cmd
 </UL>
 <BR>[Called By]<UL><LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;chassis_task
 </UL>
 
-<P><STRONG><a name="[db]"></a>Chassis_Lift_Home</STRONG> (Thumb, 42 bytes, Stack size 16 bytes, chassis_task.o(.text.Chassis_Lift_Home))
+<P><STRONG><a name="[dc]"></a>Chassis_Lift_Home</STRONG> (Thumb, 30 bytes, Stack size 16 bytes, chassis_task.o(.text.Chassis_Lift_Home))
 <BR><BR>[Stack]<UL><LI>Max Depth = 156<LI>Call Chain = Chassis_Lift_Home &rArr; Stepper_Motor_Set_Zero_Cmd &rArr; osDelay &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick &rArr; vListInsertEnd
 </UL>
-<BR>[Calls]<UL><LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Set_Zero_Cmd
-<LI><a href="#[dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Set_Zero
+<BR>[Calls]<UL><LI><a href="#[dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Set_Zero_Cmd
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PS2_Ctrl_Chassis
+<BR>[Called By]<UL><LI><a href="#[1c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PS2_Ctrl_Chassis
 </UL>
 
-<P><STRONG><a name="[1c5]"></a>Chassis_Lift_Set_Height</STRONG> (Thumb, 84 bytes, Stack size 8 bytes, chassis_task.o(.text.Chassis_Lift_Set_Height))
+<P><STRONG><a name="[1c1]"></a>Chassis_Lift_Set_Height</STRONG> (Thumb, 84 bytes, Stack size 8 bytes, chassis_task.o(.text.Chassis_Lift_Set_Height))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = Chassis_Lift_Set_Height
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PS2_Ctrl_Chassis
+<BR>[Called By]<UL><LI><a href="#[1bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PC_Info_Update
+<LI><a href="#[1c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PS2_Ctrl_Chassis
 </UL>
 
 <P><STRONG><a name="[e4]"></a>Chassis_Set_Velocity</STRONG> (Thumb, 272 bytes, Stack size 16 bytes, chassis_task.o(.text.Chassis_Set_Velocity))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = Chassis_Set_Velocity
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PS2_Ctrl_Chassis
+<BR>[Called By]<UL><LI><a href="#[1c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PS2_Ctrl_Chassis
 <LI><a href="#[e1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Chassis_Stop
 <LI><a href="#[e0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Chassis_NAV_Mode_Handler
 </UL>
@@ -2041,11 +2042,11 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Start_IT
 </UL>
-<BR>[Called By]<UL><LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Set_Zero_Cmd
-<LI><a href="#[dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Set_Zero
+<BR>[Called By]<UL><LI><a href="#[d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Set_Zero_Info
+<LI><a href="#[dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Set_Zero_Cmd
 <LI><a href="#[e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Set_Speed
 <LI><a href="#[1aa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Set_Pos
-<LI><a href="#[d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Set_Cmd
+<LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Set_Cmd
 <LI><a href="#[1d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Call_Zero_RxInfo
 <LI><a href="#[1d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Call_RxInfo
 </UL>
@@ -2203,20 +2204,21 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32h723xx.o(RESET)
 </UL>
-<P><STRONG><a name="[1bf]"></a>PC_Info_Update</STRONG> (Thumb, 106 bytes, Stack size 16 bytes, pc_comm.o(.text.PC_Info_Update))
-<BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = PC_Info_Update &rArr; RX_Sum_L8
+<P><STRONG><a name="[1bf]"></a>PC_Info_Update</STRONG> (Thumb, 142 bytes, Stack size 24 bytes, pc_comm.o(.text.PC_Info_Update))
+<BR><BR>[Stack]<UL><LI>Max Depth = 36<LI>Call Chain = PC_Info_Update &rArr; RX_Sum_L8
 </UL>
-<BR>[Calls]<UL><LI><a href="#[1c0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RX_Sum_L8
+<BR>[Calls]<UL><LI><a href="#[1c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Chassis_Lift_Set_Height
+<LI><a href="#[1c0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RX_Sum_L8
 </UL>
 <BR>[Called By]<UL><LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_ReceiveCallback
 </UL>
 
-<P><STRONG><a name="[1c1]"></a>PC_Info_Upload</STRONG> (Thumb, 116 bytes, Stack size 32 bytes, pc_comm.o(.text.PC_Info_Upload))
+<P><STRONG><a name="[1c2]"></a>PC_Info_Upload</STRONG> (Thumb, 136 bytes, Stack size 32 bytes, pc_comm.o(.text.PC_Info_Upload))
 <BR><BR>[Stack]<UL><LI>Max Depth = 232<LI>Call Chain = PC_Info_Upload &rArr; CDC_Transmit_HS &rArr; USBD_CDC_TransmitPacket &rArr; USBD_LL_Transmit &rArr; HAL_PCD_EP_Transmit &rArr; USB_EPStartXfer &rArr; USB_WritePacket
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CDC_Transmit_HS
-<LI><a href="#[1c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TX_XOR_Checksum
-<LI><a href="#[1c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
+<LI><a href="#[1c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TX_XOR_Checksum
+<LI><a href="#[1c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 </UL>
 <BR>[Called By]<UL><LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;chassis_task
 </UL>
@@ -2251,10 +2253,10 @@ Global Symbols
 <P><STRONG><a name="[1cc]"></a>PS2_task</STRONG> (Thumb, 52 bytes, Stack size 16 bytes, ps2_task.o(.text.PS2_task))
 <BR><BR>[Stack]<UL><LI>Max Depth = 220<LI>Call Chain = PS2_task &rArr; PS2_Ctrl_Chassis &rArr; Chassis_Lift_Home &rArr; Stepper_Motor_Set_Zero_Cmd &rArr; osDelay &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick &rArr; vListInsertEnd
 </UL>
-<BR>[Calls]<UL><LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
+<BR>[Calls]<UL><LI><a href="#[db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
 <LI><a href="#[1c9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PS2_ScanKey
 <LI><a href="#[1cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PS2_Mode_Switch
-<LI><a href="#[1c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PS2_Ctrl_Chassis
+<LI><a href="#[1c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PS2_Ctrl_Chassis
 </UL>
 <BR>[Called By]<UL><LI><a href="#[b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PS2_Task
 </UL>
@@ -2285,7 +2287,7 @@ Global Symbols
 <P><STRONG><a name="[b5]"></a>StartDefaultTask</STRONG> (Thumb, 20 bytes, Stack size 16 bytes, freertos.o(.text.StartDefaultTask))
 <BR><BR>[Stack]<UL><LI>Max Depth = 544<LI>Call Chain = StartDefaultTask &rArr; MX_USB_DEVICE_Init &rArr; USBD_Init &rArr; USBD_LL_Init &rArr; HAL_PCD_Init &rArr; HAL_PCD_MspInit &rArr; HAL_RCCEx_PeriphCLKConfig &rArr; RCCEx_PLL3_Config
 </UL>
-<BR>[Calls]<UL><LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
+<BR>[Calls]<UL><LI><a href="#[db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
 <LI><a href="#[1b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_USB_DEVICE_Init
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> freertos.o(.rodata..L__const.MX_FREERTOS_Init.os_thread_def_defaultTask)
@@ -2299,10 +2301,10 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;chassis_task
 </UL>
 
-<P><STRONG><a name="[d9]"></a>Stepper_Motor_Set_Cmd</STRONG> (Thumb, 72 bytes, Stack size 24 bytes, stepper_motor.o(.text.Stepper_Motor_Set_Cmd))
+<P><STRONG><a name="[da]"></a>Stepper_Motor_Set_Cmd</STRONG> (Thumb, 72 bytes, Stack size 24 bytes, stepper_motor.o(.text.Stepper_Motor_Set_Cmd))
 <BR><BR>[Stack]<UL><LI>Max Depth = 140<LI>Call Chain = Stepper_Motor_Set_Cmd &rArr; osDelay &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick &rArr; vListInsertEnd
 </UL>
-<BR>[Calls]<UL><LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
+<BR>[Calls]<UL><LI><a href="#[db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
 <LI><a href="#[1a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Transmit_DMA
 </UL>
 <BR>[Called By]<UL><LI><a href="#[d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Chassis_Init
@@ -2311,7 +2313,7 @@ Global Symbols
 <P><STRONG><a name="[1aa]"></a>Stepper_Motor_Set_Pos</STRONG> (Thumb, 196 bytes, Stack size 40 bytes, stepper_motor.o(.text.Stepper_Motor_Set_Pos))
 <BR><BR>[Stack]<UL><LI>Max Depth = 156<LI>Call Chain = Stepper_Motor_Set_Pos &rArr; osDelay &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick &rArr; vListInsertEnd
 </UL>
-<BR>[Calls]<UL><LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
+<BR>[Calls]<UL><LI><a href="#[db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
 <LI><a href="#[1a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Transmit_DMA
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Lift_Control
@@ -2320,28 +2322,28 @@ Global Symbols
 <P><STRONG><a name="[e8]"></a>Stepper_Motor_Set_Speed</STRONG> (Thumb, 134 bytes, Stack size 24 bytes, stepper_motor.o(.text.Stepper_Motor_Set_Speed))
 <BR><BR>[Stack]<UL><LI>Max Depth = 140<LI>Call Chain = Stepper_Motor_Set_Speed &rArr; osDelay &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick &rArr; vListInsertEnd
 </UL>
-<BR>[Calls]<UL><LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
+<BR>[Calls]<UL><LI><a href="#[db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
 <LI><a href="#[1a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Transmit_DMA
 </UL>
 <BR>[Called By]<UL><LI><a href="#[e3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Diff_Wheel_Calc
 </UL>
 
-<P><STRONG><a name="[dd]"></a>Stepper_Motor_Set_Zero</STRONG> (Thumb, 160 bytes, Stack size 16 bytes, stepper_motor.o(.text.Stepper_Motor_Set_Zero))
-<BR><BR>[Stack]<UL><LI>Max Depth = 132<LI>Call Chain = Stepper_Motor_Set_Zero &rArr; osDelay &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick &rArr; vListInsertEnd
-</UL>
-<BR>[Calls]<UL><LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
-<LI><a href="#[1a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Transmit_DMA
-</UL>
-<BR>[Called By]<UL><LI><a href="#[db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Chassis_Lift_Home
-</UL>
-
-<P><STRONG><a name="[dc]"></a>Stepper_Motor_Set_Zero_Cmd</STRONG> (Thumb, 68 bytes, Stack size 24 bytes, stepper_motor.o(.text.Stepper_Motor_Set_Zero_Cmd))
+<P><STRONG><a name="[dd]"></a>Stepper_Motor_Set_Zero_Cmd</STRONG> (Thumb, 68 bytes, Stack size 24 bytes, stepper_motor.o(.text.Stepper_Motor_Set_Zero_Cmd))
 <BR><BR>[Stack]<UL><LI>Max Depth = 140<LI>Call Chain = Stepper_Motor_Set_Zero_Cmd &rArr; osDelay &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick &rArr; vListInsertEnd
 </UL>
-<BR>[Calls]<UL><LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
+<BR>[Calls]<UL><LI><a href="#[db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
 <LI><a href="#[1a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Transmit_DMA
 </UL>
-<BR>[Called By]<UL><LI><a href="#[db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Chassis_Lift_Home
+<BR>[Called By]<UL><LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Chassis_Lift_Home
+</UL>
+
+<P><STRONG><a name="[d9]"></a>Stepper_Motor_Set_Zero_Info</STRONG> (Thumb, 160 bytes, Stack size 16 bytes, stepper_motor.o(.text.Stepper_Motor_Set_Zero_Info))
+<BR><BR>[Stack]<UL><LI>Max Depth = 132<LI>Call Chain = Stepper_Motor_Set_Zero_Info &rArr; osDelay &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick &rArr; vListInsertEnd
+</UL>
+<BR>[Calls]<UL><LI><a href="#[db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
+<LI><a href="#[1a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Transmit_DMA
+</UL>
+<BR>[Called By]<UL><LI><a href="#[d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Chassis_Init
 </UL>
 
 <P><STRONG><a name="[1d5]"></a>Stepper_RxInfo_Unpack</STRONG> (Thumb, 618 bytes, Stack size 24 bytes, stepper_motor.o(.text.Stepper_RxInfo_Unpack))
@@ -3132,7 +3134,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_IRQHandler
 </UL>
 
-<P><STRONG><a name="[d1]"></a>USB_ReceiveCallback</STRONG> (Thumb, 132 bytes, Stack size 24 bytes, bsp_usb.o(.text.USB_ReceiveCallback))
+<P><STRONG><a name="[d1]"></a>USB_ReceiveCallback</STRONG> (Thumb, 146 bytes, Stack size 24 bytes, bsp_usb.o(.text.USB_ReceiveCallback))
 <BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = USB_ReceiveCallback &rArr; USBD_CDC_ReceivePacket &rArr; USBD_LL_PrepareReceive &rArr; HAL_PCD_EP_Receive &rArr; USB_EPStartXfer &rArr; USB_WritePacket
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PC_Info_Update
@@ -3199,8 +3201,8 @@ Global Symbols
 <P><STRONG><a name="[d4]"></a>chassis_task</STRONG> (Thumb, 156 bytes, Stack size 24 bytes, chassis_task.o(.text.chassis_task))
 <BR><BR>[Stack]<UL><LI>Max Depth = 256<LI>Call Chain = chassis_task &rArr; PC_Info_Upload &rArr; CDC_Transmit_HS &rArr; USBD_CDC_TransmitPacket &rArr; USBD_LL_Transmit &rArr; HAL_PCD_EP_Transmit &rArr; USB_EPStartXfer &rArr; USB_WritePacket
 </UL>
-<BR>[Calls]<UL><LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
-<LI><a href="#[1c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PC_Info_Upload
+<BR>[Calls]<UL><LI><a href="#[db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
+<LI><a href="#[1c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PC_Info_Upload
 <LI><a href="#[1d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Call_Info
 <LI><a href="#[d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Chassis_Init
 <LI><a href="#[1a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Lift_Control
@@ -3241,7 +3243,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> entry9a.o(.ARM.Collect$$$$0000000B)
 </UL>
-<P><STRONG><a name="[da]"></a>osDelay</STRONG> (Thumb, 40 bytes, Stack size 24 bytes, cmsis_os.o(.text.osDelay))
+<P><STRONG><a name="[db]"></a>osDelay</STRONG> (Thumb, 40 bytes, Stack size 24 bytes, cmsis_os.o(.text.osDelay))
 <BR><BR>[Stack]<UL><LI>Max Depth = 116<LI>Call Chain = osDelay &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick &rArr; vListInsertEnd
 </UL>
 <BR>[Calls]<UL><LI><a href="#[218]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
@@ -3249,11 +3251,11 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;chassis_task
 <LI><a href="#[b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;StartDefaultTask
 <LI><a href="#[1cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PS2_task
-<LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Set_Zero_Cmd
-<LI><a href="#[dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Set_Zero
+<LI><a href="#[d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Set_Zero_Info
+<LI><a href="#[dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Set_Zero_Cmd
 <LI><a href="#[e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Set_Speed
 <LI><a href="#[1aa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Set_Pos
-<LI><a href="#[d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Set_Cmd
+<LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Set_Cmd
 <LI><a href="#[1d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Call_Zero_RxInfo
 <LI><a href="#[1d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Call_RxInfo
 <LI><a href="#[d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Chassis_Init
@@ -3369,7 +3371,7 @@ Global Symbols
 <LI><a href="#[22a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskSuspendAll
 <LI><a href="#[21c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvAddCurrentTaskToDelayedList
 </UL>
-<BR>[Called By]<UL><LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
+<BR>[Called By]<UL><LI><a href="#[db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
 </UL>
 
 <P><STRONG><a name="[219]"></a>vTaskStartScheduler</STRONG> (Thumb, 158 bytes, Stack size 32 bytes, tasks.o(.text.vTaskStartScheduler))
@@ -3776,7 +3778,7 @@ Local Symbols
 <P><STRONG><a name="[1d2]"></a>Stepper_Motor_Call_RxInfo</STRONG> (Thumb, 58 bytes, Stack size 16 bytes, stepper_motor.o(.text.Stepper_Motor_Call_RxInfo))
 <BR><BR>[Stack]<UL><LI>Max Depth = 132<LI>Call Chain = Stepper_Motor_Call_RxInfo &rArr; osDelay &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick &rArr; vListInsertEnd
 </UL>
-<BR>[Calls]<UL><LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
+<BR>[Calls]<UL><LI><a href="#[db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
 <LI><a href="#[1a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Transmit_DMA
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Call_Info
@@ -3785,7 +3787,7 @@ Local Symbols
 <P><STRONG><a name="[1d3]"></a>Stepper_Motor_Call_Zero_RxInfo</STRONG> (Thumb, 54 bytes, Stack size 16 bytes, stepper_motor.o(.text.Stepper_Motor_Call_Zero_RxInfo))
 <BR><BR>[Stack]<UL><LI>Max Depth = 132<LI>Call Chain = Stepper_Motor_Call_Zero_RxInfo &rArr; osDelay &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick &rArr; vListInsertEnd
 </UL>
-<BR>[Calls]<UL><LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
+<BR>[Calls]<UL><LI><a href="#[db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
 <LI><a href="#[1a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Transmit_DMA
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Call_Info
@@ -3805,16 +3807,16 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[1d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Info_Update
 </UL>
 
-<P><STRONG><a name="[1c0]"></a>RX_Sum_L8</STRONG> (Thumb, 66 bytes, Stack size 8 bytes, pc_comm.o(.text.RX_Sum_L8))
-<BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = RX_Sum_L8
+<P><STRONG><a name="[1c0]"></a>RX_Sum_L8</STRONG> (Thumb, 74 bytes, Stack size 12 bytes, pc_comm.o(.text.RX_Sum_L8))
+<BR><BR>[Stack]<UL><LI>Max Depth = 12<LI>Call Chain = RX_Sum_L8
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PC_Info_Update
 </UL>
 
-<P><STRONG><a name="[1c2]"></a>TX_XOR_Checksum</STRONG> (Thumb, 66 bytes, Stack size 8 bytes, pc_comm.o(.text.TX_XOR_Checksum))
+<P><STRONG><a name="[1c3]"></a>TX_XOR_Checksum</STRONG> (Thumb, 66 bytes, Stack size 8 bytes, pc_comm.o(.text.TX_XOR_Checksum))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = TX_XOR_Checksum
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PC_Info_Upload
+<BR>[Called By]<UL><LI><a href="#[1c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PC_Info_Upload
 </UL>
 
 <P><STRONG><a name="[1c7]"></a>PS2_ReadWriteData</STRONG> (Thumb, 216 bytes, Stack size 16 bytes, ps2_device.o(.text.PS2_ReadWriteData))
@@ -3978,7 +3980,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[e2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Chassis_Motor_Output
 </UL>
 
-<P><STRONG><a name="[1a9]"></a>Lift_Control</STRONG> (Thumb, 172 bytes, Stack size 24 bytes, chassis_task.o(.text.Lift_Control))
+<P><STRONG><a name="[1a9]"></a>Lift_Control</STRONG> (Thumb, 292 bytes, Stack size 24 bytes, chassis_task.o(.text.Lift_Control))
 <BR><BR>[Stack]<UL><LI>Max Depth = 180<LI>Call Chain = Lift_Control &rArr; Stepper_Motor_Set_Pos &rArr; osDelay &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick &rArr; vListInsertEnd
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1aa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Stepper_Motor_Set_Pos
@@ -3986,12 +3988,12 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;chassis_task
 </UL>
 
-<P><STRONG><a name="[1c4]"></a>PS2_Ctrl_Chassis</STRONG> (Thumb, 496 bytes, Stack size 48 bytes, ps2_task.o(.text.PS2_Ctrl_Chassis))
+<P><STRONG><a name="[1c5]"></a>PS2_Ctrl_Chassis</STRONG> (Thumb, 344 bytes, Stack size 48 bytes, ps2_task.o(.text.PS2_Ctrl_Chassis))
 <BR><BR>[Stack]<UL><LI>Max Depth = 204<LI>Call Chain = PS2_Ctrl_Chassis &rArr; Chassis_Lift_Home &rArr; Stepper_Motor_Set_Zero_Cmd &rArr; osDelay &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick &rArr; vListInsertEnd
 </UL>
-<BR>[Calls]<UL><LI><a href="#[e4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Chassis_Set_Velocity
-<LI><a href="#[1c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Chassis_Lift_Set_Height
-<LI><a href="#[db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Chassis_Lift_Home
+<BR>[Calls]<UL><LI><a href="#[1c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Chassis_Lift_Set_Height
+<LI><a href="#[e4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Chassis_Set_Velocity
+<LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Chassis_Lift_Home
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PS2_task
 </UL>

@@ -18,12 +18,13 @@
 #define LIFT     2     /* 丝杆抬升电机索引 */
 
 /* ---- 丝杆抬升参数 (单位: mm) — TODO: 实测后修改 ---- */
-#define LEAD_SCREW_PITCH        2.0f        /* 丝杆导程 [mm/rev] — TODO: 实测 */
+#define LEAD_SCREW_PITCH        2.07f       /* 丝杆导程 [mm/rev] — 实测: 10圈=20.7mm */
 #define LIFT_GEAR_RATIO         13.7f       /* 减速比 13.7:1 (电机侧:输出侧) */
 #define LIFT_MIN_HEIGHT         0.0f        /* 最小高度 [mm] — 零点位置 — TODO: 实测 */
-#define LIFT_MAX_HEIGHT         80.0f       /* 最大高度 [mm] — TODO: 实测 */
-#define LIFT_SPEED              1500         /* 抬升速度 [RPM] — TODO: 实测 */
-#define LIFT_ACCEL              5           /* 抬升加速度 — TODO: 实测 */
+#define LIFT_MAX_HEIGHT         100.6f      /* 最大高度 [mm] — 实测: 总行程100.6mm */
+#define LIFT_SPEED              2500         /* 抬升速度 [RPM] — TODO: 实测，范围0-3000rpm */
+#define LIFT_ACCEL              150          /* 抬升加速度 — TODO: 实测 */
+#define LIFT_MANUAL_MAX_SPEED   15.0f        /* 手动控制最大抬升速率 [mm/s] */
 #define LIFT_MOTOR_ADDR         1           /* 抬升电机地址 */
 
 /* 高度 ↔ 电机角度 换算 (含减速比) */
@@ -53,6 +54,8 @@ typedef struct
     /* ---- 丝杆抬升 ---- */
     float lift_target_height;     /* 目标高度 [mm] */
     float lift_cur_height;        /* 当前高度 [mm] (编码器反馈) */
+    float lift_bus_voltage;       /* 丝杆电机总线电压 [mV] */
+    uint8_t lift_homing;          /* 回零中标志 */
 } Chassis_Info_Typedef;
 
 extern Chassis_Info_Typedef Chassis;

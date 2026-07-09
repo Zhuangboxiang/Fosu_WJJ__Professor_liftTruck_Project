@@ -274,7 +274,7 @@ void Stepper_Motor_Set_Pos(Stepper_Motor_Info_Typedef *Motor,uint16_t Speed,uint
 void Stepper_Motor_Set_Pos_Current(Stepper_Motor_Info_Typedef *Motor, uint16_t Speed, float Target_pos, Stepper_Motor_Pos_Mode_e Pose_Mode, uint16_t Max_Current, uint32_t Delay_Time);
 void Stepper_Motor_Set_Pos_Stop(Stepper_Motor_Info_Typedef *Motor, uint32_t Delay_Time);
 void Stepper_Motor_Set_Zero_Cmd(Stepper_Motor_Info_Typedef *Motor, Stepper_Motor_Zero_Mode_e Zero_Mode, uint32_t Delay_Time);
-void Stepper_Motor_Set_Zero(Stepper_Motor_Info_Typedef *Motor, uint32_t Delay_Time);
+void Stepper_Motor_Set_Zero_Info(Stepper_Motor_Info_Typedef *Motor, uint32_t Delay_Time);
 void Stepper_Motor_Call_Cal(Stepper_Motor_Info_Typedef *Motor, uint32_t Delay_Time);
 void Stepper_Motor_Call_Info(Stepper_Motor_Info_Typedef *Motor, uint32_t Delay_Time);
 void Stepper_RxInfo_Unpack(uint8_t *Rx_Buf, Stepper_Motor_RxInfo_Typedef *RxInfo);

@@ -39,12 +39,12 @@ static uint8_t TX_XOR_Checksum(uint8_t *p)
 }
 
 /**
- * @brief  计算前13字节累加和低八位(接收帧用)
+ * @brief  计算前n字节累加和低八位(接收帧用)
  */
-static uint8_t RX_Sum_L8(uint8_t *p)
+static uint8_t RX_Sum_L8(uint8_t *p, uint8_t n)
 {
     uint16_t sum = 0;
-    for (uint8_t i = 0; i < PC_RX_FRAME_LEN - 2; i++)
+    for (uint8_t i = 0; i < n; i++)
     {
         sum += p[i];
     }
@@ -57,8 +57,8 @@ static uint8_t RX_Sum_L8(uint8_t *p)
  * @param  buff: 接收数据缓冲区
  * @param  len: 本次接收长度
  *
- * @note   上位机下发格式 (15字节):
- *         包头(0x5A) + Vx(f4) + Vy(f4) + Vw(f4) + 校验和(u8,前13字节累加低八位) + 包尾(0xA5)
+ * @note   上位机下发格式 (19字节):
+ *         包头(0x5A) + Vx(f4) + Vy(f4) + Vw(f4) + 目标高度f(4) + 校验(u8,前17字节累加低八位) + 包尾(0xA5)
  */
 void PC_Info_Update(uint8_t *buff, uint16_t len)
 {
@@ -68,13 +68,19 @@ void PC_Info_Update(uint8_t *buff, uint16_t len)
     if (buff[0] != PC_RX_HEAD || buff[PC_RX_FRAME_LEN - 1] != PC_RX_TAIL)
         return;
 
-    if (RX_Sum_L8(buff) != buff[PC_RX_FRAME_LEN - 2])
+    if (RX_Sum_L8(buff, PC_RX_FRAME_LEN - 2) != buff[PC_RX_FRAME_LEN - 2])
         return;
 
     /* 解析 vx/vy/vw → Chassis.pc_speed (小端序 float) */
     memcpy(&Chassis.pc_speed.rx_vx, &buff[1], 4);
     memcpy(&Chassis.pc_speed.rx_vy, &buff[5], 4);
     memcpy(&Chassis.pc_speed.rx_vw, &buff[9], 4);
+
+    /* 解析目标高度 → 仅导航模式下生效 */
+    float target_h;
+    memcpy(&target_h, &buff[13], 4);
+    if (Chassis.mode == CHASSIS_MODE_NAV)
+        Chassis_Lift_Set_Height(&Chassis, target_h);
 }
 
 /**
@@ -90,8 +96,11 @@ void PC_Info_Upload(float vx, float vy, float vw)
     PC_TxFrame.Vx.fval     = vx;
     PC_TxFrame.Vy.fval     = vy;
     PC_TxFrame.Vw.fval     = vw;
-    PC_TxFrame.Reserved1   = (int32_t)Chassis.mode;
-    PC_TxFrame.Reserved2   = 0;
+
+    /* 电池电压 [V] (丝杆电机静止时读数) */
+    PC_TxFrame.Bat_Pct.fval = Chassis.lift_bus_voltage * 0.001f;
+
+    PC_TxFrame.Lift_H.fval = Chassis.lift_cur_height;
     PC_TxFrame.Checksum    = TX_XOR_Checksum((uint8_t *)&PC_TxFrame);
 
     memcpy(PC_TxBuf, &PC_TxFrame, PC_TX_FRAME_LEN);

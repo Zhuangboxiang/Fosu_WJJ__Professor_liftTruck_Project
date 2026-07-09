@@ -66,7 +66,14 @@ void USB_ReceiveCallback(uint16_t Len)
     USBD_CDC_ReceivePacket(&hUsbDeviceHS);
     
     if (pDataBuf != NULL) {
-        PC_Info_Update(pDataBuf, Len); 
+        switch (pDataBuf[0])
+        {
+            case PC_RX_HEAD:        /* 0x5A: 速度+高度指令 */
+                PC_Info_Update(pDataBuf, Len);
+                break;
+            default:
+                break;
+        }
     }
 }
 

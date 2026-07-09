@@ -101,7 +101,7 @@ void Stepper_Motor_Set_Zero_Cmd(Stepper_Motor_Info_Typedef *Motor,
  * @return	无
  * @note	无
  */
-void Stepper_Motor_Set_Zero(Stepper_Motor_Info_Typedef *Motor, uint32_t Delay_Time)
+void Stepper_Motor_Set_Zero_Info(Stepper_Motor_Info_Typedef *Motor, uint32_t Delay_Time)
 {
     static uint8_t Tx_Data[20] = {0};
     Tx_Data[0] = Motor->Set.motor_Addr;

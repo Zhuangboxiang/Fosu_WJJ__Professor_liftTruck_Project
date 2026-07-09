@@ -59,29 +59,23 @@ static void PS2_Ctrl_Chassis(PS2_Info_Typedef *PS2, Chassis_Info_Typedef *Chassi
         float vy = (float)jy / PS2_RC_MAX * CHASSIS_MAX_V;
         float wz = (float)jz / PS2_RC_MAX * CHASSIS_MAX_W;
         Chassis_Set_Velocity(Chassis, vx, vy, wz);
-    }
-    else
-    {
-        float vx = 0, vy = 0, wz = 0;
-        if (PS2->Data.PS2_UP)    vx =  CHASSIS_MAX_V;
-        if (PS2->Data.PS2_DOWN)  vx = -CHASSIS_MAX_V;
-        if (PS2->Data.PS2_LEFT)  vy =  CHASSIS_MAX_V;
-        if (PS2->Data.PS2_RIGHT) vy = -CHASSIS_MAX_V;
-        if (PS2->Data.PS2_L1)    wz = -2.5f;
-        if (PS2->Data.PS2_R1)    wz =  2.5f;
-        Chassis_Set_Velocity(Chassis, vx, vy, wz);
 
-        /* ---- 丝杆抬升控制 ---- */
-        /* 三角键: 当前位置设为零点 (上升沿) */
+        /* 右摇杆上下: 累加控制丝杆高度 */
+        int16_t r_ud = PS2_RRC_UD(PS2);
+        if (r_ud > 20 || r_ud < -20)  /* 死区 ±20 */
+        {
+            float delta = (float)r_ud / PS2_RC_MAX * LIFT_MANUAL_MAX_SPEED
+                          * (PS2_TASK_PERIOD_MS / 1000.0f);
+            Chassis_Lift_Set_Height(Chassis, Chassis->lift_target_height + delta);
+        }
+
+        /* 三角键: 回零 (上升沿) */
         static uint8_t tri_last = 0;
         if (PS2->Data.PS2_TRI && !tri_last)
             Chassis_Lift_Home(Chassis);
         tri_last = PS2->Data.PS2_TRI;
-
-        /* L2/R2: 调整目标高度 (2mm/周期), 状态机自动处理绝对定位 */
-        if (PS2->Data.PS2_L2)
-            Chassis_Lift_Set_Height(Chassis, Chassis->lift_target_height + 2.0f);
-        if (PS2->Data.PS2_R2)
-            Chassis_Lift_Set_Height(Chassis, Chassis->lift_target_height - 2.0f);
+    }
+    else
+    {
     }
 }

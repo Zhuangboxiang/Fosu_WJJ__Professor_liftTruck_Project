@@ -59,6 +59,8 @@ Chassis_Info_Typedef Chassis = {
     .init_flag     = 0,
     .lift_target_height = 0,
     .lift_cur_height    = 0,
+    .lift_bus_voltage   = 0,
+    .lift_homing        = 0,
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -109,12 +111,23 @@ void chassis_task(void)
  */
 void Chassis_Init(Chassis_Info_Typedef *chassis)
 {
+    /* 回零参数一次性设置 (参考 linear_task.c 的做法) */
+    Stepper_Motor_Info_Typedef *lift = &chassis->Motor[LIFT];
+    lift->Set.Zero_Set.zero_save           = 0x01;
+    lift->Set.Zero_Set.zero_mode           = Zero_No_Limit_Collision;
+    lift->Set.Zero_Set.zero_dir            = Stepper_CW;
+    lift->Set.Zero_Set.zero_speed          = 200;
+    lift->Set.Zero_Set.zero_detect_speed   = 50;
+    lift->Set.Zero_Set.zero_detect_current = 600;
+    lift->Set.Zero_Set.zero_detect_time    = 50;
+    lift->Set.Zero_Set.zero_out_time       = 60000;
+    lift->Set.Zero_Set.zero_POT_En         = 0;
+    Stepper_Motor_Set_Zero_Info(lift, 10u);
+
     for (uint8_t i = 0; i < 3; i++)
     {
         Stepper_Motor_Set_Cmd(&chassis->Motor[i], Stepper_Enable, 10u);
     }
-    /* 丝杆电机: 断电记忆位置, 上电自动恢复 */
-  //  Stepper_Motor_Set_Zero_Cmd(&chassis->Motor[LIFT], Zero_Last_Power_Off, 10);
     osDelay(500);
     chassis->init_flag = 1;
 }
@@ -259,13 +272,14 @@ static void Chassis_Actual_Calc(Chassis_Info_Typedef *chassis)
 /* ---------------------------------------------------------------------------*/
 
 /**
- * @brief  抬升零位设置 (当前位置=0mm)
+ * @brief  抬升零位设置 (三角键触发, 碰撞回零后自动退出)
+ * @note   电机慢速下压到机械止点, 驱动器检测堵转后设为零点
  */
 void Chassis_Lift_Home(Chassis_Info_Typedef *chassis)
 {
-    Stepper_Motor_Set_Zero_Cmd(&chassis->Motor[LIFT], Zero_Abs, 0);
-    Stepper_Motor_Set_Zero(&chassis->Motor[LIFT], 0);
-    chassis->lift_target_height = 0;
+    /* 参数已在 Chassis_Init 中通过 Set_Zero_Info 一次性配置 */
+    chassis->lift_homing = 1;
+    Stepper_Motor_Set_Zero_Cmd(&chassis->Motor[LIFT], Zero_No_Limit_Collision, 10u);
 }
 
 /**
@@ -279,21 +293,37 @@ void Chassis_Lift_Set_Height(Chassis_Info_Typedef *chassis, float height_mm)
 
 /**
  * @brief  抬升控制: 每主循环周期 (1ms)  
- * @note   检测到目标变化时发送绝对位置指令; 每周期刷新当前高度
  */
 static void Lift_Control(Chassis_Info_Typedef *chassis)
 {
     static float last_height = -1.0f;
 
-    /* 从编码器反馈刷新当前高度 */
-    chassis->lift_cur_height = ANGLE_TO_HEIGHT(chassis->Motor[LIFT].Data.pos);
+    /* ---- 回零中: 等碰撞回零完成 (Prf_TF=1) ---- */
+    if (chassis->lift_homing)
+    {
+        if (chassis->Motor[LIFT].Data.motor_status.bits.Prf_TF)
+        {
+            chassis->lift_homing         = 0;
+            chassis->lift_target_height  = 0;
+            chassis->lift_cur_height     = 0;
+            last_height = -1.0f;  /* 重置, 允许下次位置指令 */
+        }
+        return;  /* 回零期间不接受其他指令 */
+    }
 
-    /* 目标变化 → 发绝对位置指令 */
+    /* 从编码器反馈刷新当前高度 */
+    chassis->lift_cur_height = ANGLE_TO_HEIGHT(-chassis->Motor[LIFT].Data.pos);
+
+    /* 电机几乎不动时读取总线电压 (mV), 避免大电流压降影响读数 */
+    if (fabsf(chassis->Motor[LIFT].Data.speed) < 2.0f)
+        chassis->lift_bus_voltage = chassis->Motor[LIFT].Data.bus_voltage;
+
+    /* 目标变化 → 发绝对位置指令 (CCW=升高, 角度取反) */
     if (fabsf(chassis->lift_target_height - last_height) > 0.01f)
     {
         last_height = chassis->lift_target_height;
         float angle = HEIGHT_TO_ANGLE(chassis->lift_target_height);
         Stepper_Motor_Set_Pos(&chassis->Motor[LIFT], LIFT_SPEED, LIFT_ACCEL,
-                              angle, Pos_Mode_Abs_To_Zero, 0);
+                              -angle, Pos_Mode_Abs_To_Zero, 0);
     }
 }
