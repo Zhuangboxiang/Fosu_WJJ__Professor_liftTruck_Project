@@ -35,7 +35,7 @@
 /* Global variable -----------------------------------------------------------*/
 Chassis_Info_Typedef Chassis = {
     .Motor[WHEEL_L] = {
-        .Set.motor_Addr = 3,
+        .Set.motor_Addr = 1,
         .Set.Firmware_v = Firmware_Emm,
     },
     .Motor[WHEEL_R] = {

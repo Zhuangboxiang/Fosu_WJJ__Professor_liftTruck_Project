@@ -5,8 +5,8 @@
 #include "Stepper_Motor.h"
 #include "PC_Comm.h"
 
-#define CHASSIS_WHEEL_R         0.0425f       /* 轮半径 [m] (直径85mm) */
-#define CHASSIS_TRACK_WIDTH     0.24f       /* 轮距(左右轮间距) [m] (240mm) */
+#define CHASSIS_WHEEL_R         0.09f       /* 轮半径 [m] (直径18cm) */
+#define CHASSIS_TRACK_WIDTH     0.37f       /* 轮距(左右轮间距) [m] (37cm) */
 
 #define CHASSIS_MAX_V           0.4f        /* 最大线速度 [m/s] */
 #define CHASSIS_MAX_W           3.1416f     /* 最大角速度 [rad/s] (一圈≈2s) */
@@ -25,7 +25,7 @@
 #define LIFT_SPEED              2500         /* 抬升速度 [RPM] — TODO: 实测，范围0-3000rpm */
 #define LIFT_ACCEL              150          /* 抬升加速度 — TODO: 实测 */
 #define LIFT_MANUAL_MAX_SPEED   15.0f        /* 手动控制最大抬升速率 [mm/s] */
-#define LIFT_MOTOR_ADDR         1           /* 抬升电机地址 */
+#define LIFT_MOTOR_ADDR         3           /* 抬升电机地址 */
 
 /* 高度 ↔ 电机角度 换算 (含减速比) */
 #define HEIGHT_TO_ANGLE(h)      ((h) / LEAD_SCREW_PITCH * 360.0f * LIFT_GEAR_RATIO)

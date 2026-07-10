@@ -463,9 +463,9 @@ static void Stepper_ID_Select(uint8_t ID,
 {
     switch(ID)
     {
-        case 3: Stepper_Motor_Info_Update(&Chassis.Motor[WHEEL_L], Stepper_RxInfo, code); break;
+        case 1: Stepper_Motor_Info_Update(&Chassis.Motor[WHEEL_L], Stepper_RxInfo, code); break;
         case 2: Stepper_Motor_Info_Update(&Chassis.Motor[WHEEL_R], Stepper_RxInfo, code); break;
-        case 1: Stepper_Motor_Info_Update(&Chassis.Motor[LIFT],    Stepper_RxInfo, code); break;
+        case 3: Stepper_Motor_Info_Update(&Chassis.Motor[LIFT],    Stepper_RxInfo, code); break;
     }
 }
 
