@@ -90,6 +90,7 @@ typedef struct {
     PS2_Data_Typedef Data;
     const uint8_t PS2_cmnd[9];   //请求获取数据命令                         
     uint8_t PS2_buff[9];         //接收的数据
+    float loop_time_us;          //单次循环耗时 [μs]
 } PS2_Info_Typedef;
 
 extern PS2_Info_Typedef PS2_Info;

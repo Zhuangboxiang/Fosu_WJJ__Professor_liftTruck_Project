@@ -61,8 +61,9 @@ void INS_task(void)
 	 
 	 while(1)
 	 {	
-		ins_dt = DWT_GetDeltaT(&INS_DWT_Count);
-	
+		uint64_t t0 = DWT_GetTimeline_us();
+
+        ins_dt = DWT_GetDeltaT(&INS_DWT_Count);
 		mahony.dt = ins_dt;
 
 		BMI088_Read(&BMI088);
@@ -122,14 +123,10 @@ void INS_task(void)
 			INS.v_n=INS.v_n+INS.MotionAccel_n[1]*0.001f;
 		  	INS.x_n=INS.x_n+INS.v_n*0.001f;
 			INS.ins_flag=1;//单元初始完毕，加速度也初始完毕，此时可以开始积分
-			// 	获取欧拉角
-	  		//	INS.Roll=mahony.roll;
-			//  INS.Pitch=mahony.pitch;
-		 	// 	INS.Yaw=mahony.yaw;
-			
-		  	INS.Roll=mahony.pitch;
-		  	INS.Pitch=mahony.roll;
-		 	INS.Yaw=mahony.yaw;
+			// 获取欧拉角
+			INS.Roll  = mahony.roll;
+			INS.Pitch = mahony.pitch;
+			INS.Yaw   = mahony.yaw;
 		
 		//INS.YawTotalAngle=INS.YawTotalAngle+INS.Gyro[2]*0.001f;
 			
@@ -147,6 +144,8 @@ void INS_task(void)
 		else {
 		 	ins_time++;
 		}
+
+        INS.ins_loop_time_us = (float)(DWT_GetTimeline_us() - t0);
 		
 		osDelay(1);
 	}

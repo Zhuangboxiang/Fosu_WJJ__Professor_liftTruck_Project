@@ -65,6 +65,8 @@ typedef struct
 	float x_n;					// 大地坐标系下水平运动位移
 	
 	uint8_t ins_flag;			// 姿态解算完成标志
+
+    float ins_loop_time_us;     // 单次循环耗时 [μs]
 } INS_t;
 
 /**

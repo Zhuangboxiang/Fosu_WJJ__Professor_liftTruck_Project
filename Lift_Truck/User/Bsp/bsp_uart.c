@@ -160,31 +160,24 @@ static void USER_USART2_RxHandler(UART_HandleTypeDef *huart,uint16_t Size){
   * @note   无
   */
 static void USER_USART10_RxHandler(UART_HandleTypeDef *huart,uint16_t Size){
-	/* 当前使用的内存缓冲区是内存0 */
+	(void)Size;
+	/* 当前使用的内存缓冲区是内存0
+	 *   NDTR设为 31*2=62 > 31(帧长), 确保IDLE在NDTR归零前触发,
+	 *   CT位不会硬件翻转, 始终读到刚收完的那个buffer */
 	if(((((DMA_Stream_TypeDef  *)huart->hdmarx->Instance)->CR) & DMA_SxCR_CT ) == RESET){
-		/* 禁用DMA */
 		__HAL_DMA_DISABLE(huart->hdmarx);
-		/* 切换内存0到内存1 */
 		((DMA_Stream_TypeDef  *)huart->hdmarx->Instance)->CR |= DMA_SxCR_CT;
-		/* 重置接收计数 */
-		__HAL_DMA_SET_COUNTER(huart->hdmarx,STEPPER_MOTOR_RX_BUF_LEN*2);
+		__HAL_DMA_SET_COUNTER(huart->hdmarx, STEPPER_MOTOR_RX_BUF_LEN * 2);
 
-		/* 内存0数据解包 */
-		Stepper_RxInfo_Unpack(Stepper_MultiRx_Buf[0],&Stepper_Rx_Info);
+		Stepper_RxInfo_Unpack(Stepper_MultiRx_Buf[0], &Stepper_Rx_Info);
 	}
-	/* 当前使用的内存缓冲区是内存1 */
 	else{
-		/* 禁用DMA */
 		__HAL_DMA_DISABLE(huart->hdmarx);
-		/* 切换内存1到内存0 */
 		((DMA_Stream_TypeDef  *)huart->hdmarx->Instance)->CR &= ~(DMA_SxCR_CT);
-		/* 重置接收计数 */
-		__HAL_DMA_SET_COUNTER(huart->hdmarx,STEPPER_MOTOR_RX_BUF_LEN*2);
+		__HAL_DMA_SET_COUNTER(huart->hdmarx, STEPPER_MOTOR_RX_BUF_LEN * 2);
 
-		/* 内存1数据解包 */
-		Stepper_RxInfo_Unpack(Stepper_MultiRx_Buf[1],&Stepper_Rx_Info);
+		Stepper_RxInfo_Unpack(Stepper_MultiRx_Buf[1], &Stepper_Rx_Info);
 	}
-	/* 使能DMA */
 	__HAL_DMA_ENABLE(huart->hdmarx);
 }
 

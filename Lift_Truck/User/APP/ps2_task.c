@@ -1,5 +1,6 @@
 #include "ps2_task.h"
 #include "chassis_task.h"
+#include "bsp_dwt.h"
 
 #define PS2_TASK_PERIOD_MS  30
 
@@ -10,9 +11,14 @@ void PS2_task(void)
 {
     while (1)
     {
+        uint64_t t0 = DWT_GetTimeline_us();
+
         PS2_ScanKey(&PS2_Info);
         PS2_Mode_Switch(&PS2_Info, &Chassis);
         PS2_Ctrl_Chassis(&PS2_Info, &Chassis);
+
+        PS2_Info.loop_time_us = (float)(DWT_GetTimeline_us() - t0);
+
         osDelay(PS2_TASK_PERIOD_MS);
     }
 }

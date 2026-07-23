@@ -47,12 +47,13 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
-
+osMutexId huart10_mutex_id;
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
 osThreadId INS_TASKHandle;
 osThreadId CHASSIS_TASKHandle;
 osThreadId PS2_TASKHandle;
+osThreadId MOTOR_FB_TASKHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -63,6 +64,7 @@ void StartDefaultTask(void const * argument);
 void INS_Task(void const * argument);
 void CHASSIS_Task(void const * argument);
 void PS2_Task(void const * argument);
+void Motor_Fb_Task(void const * argument);
 
 extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -78,7 +80,8 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
-  /* add mutexes, ... */
+  osMutexDef(huart10_mutex);
+  huart10_mutex_id = osMutexCreate(osMutex(huart10_mutex));
   /* USER CODE END RTOS_MUTEX */
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
@@ -99,16 +102,20 @@ void MX_FREERTOS_Init(void) {
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* definition and creation of INS_TASK */
-  // osThreadDef(INS_TASK, INS_Task, osPriorityRealtime, 0, 512);
-  // INS_TASKHandle = osThreadCreate(osThread(INS_TASK), NULL);
+  osThreadDef(INS_TASK, INS_Task, osPriorityRealtime, 0, 512);
+  INS_TASKHandle = osThreadCreate(osThread(INS_TASK), NULL);
 
   /* definition and creation of CHASSIS_TASK */
   osThreadDef(CHASSIS_TASK, CHASSIS_Task, osPriorityAboveNormal, 0, 512);
   CHASSIS_TASKHandle = osThreadCreate(osThread(CHASSIS_TASK), NULL);
 
   /* definition and creation of PS2_TASK */
-  osThreadDef(PS2_TASK, PS2_Task, osPriorityHigh, 0, 512);
+  osThreadDef(PS2_TASK, PS2_Task, osPriorityRealtime, 0, 512);
   PS2_TASKHandle = osThreadCreate(osThread(PS2_TASK), NULL);
+
+  /* definition and creation of MOTOR_FB_TASK */
+  osThreadDef(MOTOR_FB_TASK, Motor_Fb_Task, osPriorityHigh, 0, 256);
+  MOTOR_FB_TASKHandle = osThreadCreate(osThread(MOTOR_FB_TASK), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -190,6 +197,17 @@ void PS2_Task(void const * argument)
 
   }
   /* USER CODE END PS2_Task */
+}
+
+void Motor_Fb_Task(void const * argument)
+{
+  /* USER CODE BEGIN Motor_Fb_Task */
+  /* Infinite loop */
+  for(;;)
+  {
+    Motor_Feedback_Task();
+  }
+  /* USER CODE END Motor_Fb_Task */
 }
 
 /* Private application code --------------------------------------------------*/

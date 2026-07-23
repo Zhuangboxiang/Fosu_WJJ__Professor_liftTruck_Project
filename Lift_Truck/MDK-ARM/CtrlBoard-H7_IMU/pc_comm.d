@@ -75,4 +75,10 @@ ctrlboard-h7_imu/pc_comm.o: ..\User\Devices\PC_Comm\PC_Comm.c \
   ..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc\usbd_ctlreq.h \
   ..\User\APP\chassis_task.h \
   ..\User\Devices\Stepper_Motor\Stepper_Motor.h \
-  ..\User\Devices\PC_Comm\PC_Comm.h
+  ..\User\Devices\PC_Comm\PC_Comm.h ..\User\APP\INS_task.h \
+  ..\User\Devices\BMI088\BMI088driver.h \
+  ..\User\Algorithm\EKF\QuaternionEKF.h \
+  ..\User\Algorithm\kalman\kalman_filter.h \
+  ..\Drivers\CMSIS\DSP\Include\arm_math.h \
+  ..\Drivers\CMSIS\Include\cmsis_compiler.h \
+  D:\Keil_v5-536\ARM\ARMCLANG\Bin\..\include\float.h

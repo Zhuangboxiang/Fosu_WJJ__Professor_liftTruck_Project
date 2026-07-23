@@ -24,11 +24,13 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "chassis_task.h"
+#include "bsp_dwt.h"
 #include "cmsis_os.h"
 #include "user_lib.h"
 #include "PC_Comm.h"
 
 /* Private define ------------------------------------------------------------*/
+#define CHASSIS_TASK_PERIOD_MS  1       /* 底盘任务周期 [ms] */
 #define RPM_TO_MOTOR(r)     ((int16_t)((r) * Stepper_Ratio))
 #define MOTOR_RPM_TO_MS(m)  ((m) / Stepper_Ratio / WHEEL_RAD_TO_RPM)  /* 电机端RPM → 轮端线速度 [m/s] */
 
@@ -59,7 +61,7 @@ Chassis_Info_Typedef Chassis = {
     .init_flag     = 0,
     .lift_target_height = 0,
     .lift_cur_height    = 0,
-    .lift_bus_voltage   = 0,
+    .bus_voltage        = 0,
     .lift_homing        = 0,
 };
 
@@ -81,28 +83,21 @@ static void Lift_Control(Chassis_Info_Typedef *chassis);
  */
 void chassis_task(void)
 {
-    uint32_t tick = 0;
-    uint8_t query_idx = 0;  /* 轮询索引: 0=左轮, 1=右轮, 2=抬升 */
-
     Chassis_Init(&Chassis);
 
     while (1)
     {
+        uint64_t t0 = DWT_GetTimeline_us();
+
         Chassis_Mode_Dispatch(&Chassis);                         /* 按模式分发控制逻辑 */
         Chassis_Motor_Output(&Chassis);                          /* 统一输出到电机 */
         Chassis_Actual_Calc(&Chassis);                           /* 正解算: 电机反馈 → vx/wz */
         Lift_Control(&Chassis);                                  /* 抬升控制 */
-       // PC_Info_Upload(Chassis.vx_actual, Chassis.vy_actual, Chassis.wz_actual);
         PC_Info_Upload(Chassis.vx_target, Chassis.vy_target, Chassis.wz_target);
-        /* 每50ms轮询一个电机的反馈数据 (0x43查询) */
-        if (++tick >= 50)
-        {
-            tick = 0;
-            Stepper_Motor_Call_Info(&Chassis.Motor[query_idx], 5u);
-            query_idx = (query_idx + 1) % 3;  /* 三电机轮询 */
-        }
 
-        osDelay(1);
+        Chassis.loop_time_us = (float)(DWT_GetTimeline_us() - t0);
+
+        osDelay(CHASSIS_TASK_PERIOD_MS);
     }
 }
 
@@ -116,7 +111,7 @@ void Chassis_Init(Chassis_Info_Typedef *chassis)
     lift->Set.Zero_Set.zero_save           = 0x01;
     lift->Set.Zero_Set.zero_mode           = Zero_No_Limit_Collision;
     lift->Set.Zero_Set.zero_dir            = Stepper_CW;
-    lift->Set.Zero_Set.zero_speed          = 200;
+    lift->Set.Zero_Set.zero_speed          = 800;
     lift->Set.Zero_Set.zero_detect_speed   = 50;
     lift->Set.Zero_Set.zero_detect_current = 600;
     lift->Set.Zero_Set.zero_detect_time    = 50;
@@ -245,8 +240,13 @@ static void Diff_Wheel_Calc(Chassis_Info_Typedef *chassis, float vx, float vy, f
     chassis->rpm_L_target = (float)motor_L;  /* 记录目标值 (电机端, 含减速比) */
     chassis->rpm_R_target = (float)motor_R;
 
-    Stepper_Motor_Set_Speed(&chassis->Motor[WHEEL_L], motor_L, 0, 3);
-    Stepper_Motor_Set_Speed(&chassis->Motor[WHEEL_R], motor_R, 0, 3);
+    // 恢复发送，添加互斥保护以防TX冲突
+    if (osMutexWait(huart10_mutex_id, 0) == osOK)
+    {
+        Stepper_Motor_Set_Speed(&chassis->Motor[WHEEL_L], motor_L, 0, 0);
+        Stepper_Motor_Set_Speed(&chassis->Motor[WHEEL_R], motor_R, 0, 0);
+        osMutexRelease(huart10_mutex_id);
+    }
 }
 
 /**
@@ -291,13 +291,8 @@ void Chassis_Lift_Set_Height(Chassis_Info_Typedef *chassis, float height_mm)
     chassis->lift_target_height = height_mm;
 }
 
-/**
- * @brief  抬升控制: 每主循环周期 (1ms)  
- */
 static void Lift_Control(Chassis_Info_Typedef *chassis)
 {
-    static float last_height = -1.0f;
-
     /* ---- 回零中: 等碰撞回零完成 (Prf_TF=1) ---- */
     if (chassis->lift_homing)
     {
@@ -306,7 +301,6 @@ static void Lift_Control(Chassis_Info_Typedef *chassis)
             chassis->lift_homing         = 0;
             chassis->lift_target_height  = 0;
             chassis->lift_cur_height     = 0;
-            last_height = -1.0f;  /* 重置, 允许下次位置指令 */
         }
         return;  /* 回零期间不接受其他指令 */
     }
@@ -314,16 +308,45 @@ static void Lift_Control(Chassis_Info_Typedef *chassis)
     /* 从编码器反馈刷新当前高度 */
     chassis->lift_cur_height = ANGLE_TO_HEIGHT(-chassis->Motor[LIFT].Data.pos);
 
-    /* 电机几乎不动时读取总线电压 (mV), 避免大电流压降影响读数 */
-    if (fabsf(chassis->Motor[LIFT].Data.speed) < 2.0f)
-        chassis->lift_bus_voltage = chassis->Motor[LIFT].Data.bus_voltage;
+    /* 电机几乎不动时从1号轮电机读取总线电压 [mV], 避免大电流压降 */
+    if (fabsf(chassis->Motor[WHEEL_L].Data.speed) < 2.0f)
+        chassis->bus_voltage = chassis->Motor[WHEEL_L].Data.bus_voltage;
 
-    /* 目标变化 → 发绝对位置指令 (CCW=升高, 角度取反) */
-    if (fabsf(chassis->lift_target_height - last_height) > 0.01f)
+    /* 每轮都发绝对位置指令, 丢帧自动补 (和轮子速度模式一样) */
+    if (osMutexWait(huart10_mutex_id, 0) == osOK)
     {
-        last_height = chassis->lift_target_height;
         float angle = HEIGHT_TO_ANGLE(chassis->lift_target_height);
         Stepper_Motor_Set_Pos(&chassis->Motor[LIFT], LIFT_SPEED, LIFT_ACCEL,
                               -angle, Pos_Mode_Abs_To_Zero, 0);
+        osMutexRelease(huart10_mutex_id);
+    }
+}
+
+/**
+ * @brief  电机反馈查询任务 (低优先级, 不抢控制)
+ * @note   独立查询三路电机编码器/状态, 更新全局 Chassis.Motor[i].Data
+ *         每 ~30ms 刷新一次, chassis_task 只管读不管查
+ */
+void Motor_Feedback_Task(void)
+{
+    /* 等底盘初始化完成 */
+    while (!Chassis.init_flag) osDelay(10);
+
+    while (1)
+    {
+        /* 逐路加锁，每路只占 ~6ms，让 CHASSIS 有机会插空发送 */
+        osMutexWait(huart10_mutex_id, osWaitForever);
+        Stepper_Motor_Call_Info(&Chassis.Motor[WHEEL_L], 3u);
+        osMutexRelease(huart10_mutex_id);
+
+        osMutexWait(huart10_mutex_id, osWaitForever);
+        Stepper_Motor_Call_Info(&Chassis.Motor[WHEEL_R], 3u);
+        osMutexRelease(huart10_mutex_id);
+
+        osMutexWait(huart10_mutex_id, osWaitForever);
+        Stepper_Motor_Call_Info(&Chassis.Motor[LIFT],    3u);
+        osMutexRelease(huart10_mutex_id);
+
+        osDelay(50);  /* ~68ms 周期 -> ~15Hz 刷新，减少锁冲突 */
     }
 }

@@ -8,8 +8,8 @@
 #define CHASSIS_WHEEL_R         0.09f       /* 轮半径 [m] (直径18cm) */
 #define CHASSIS_TRACK_WIDTH     0.37f       /* 轮距(左右轮间距) [m] (37cm) */
 
-#define CHASSIS_MAX_V           0.4f        /* 最大线速度 [m/s] */
-#define CHASSIS_MAX_W           3.1416f     /* 最大角速度 [rad/s] (一圈≈2s) */
+#define CHASSIS_MAX_V           0.8f        /* 最大线速度 [m/s] */
+#define CHASSIS_MAX_W           1.57f     /* 最大角速度 [rad/s] (一圈≈4s) */
 
 #define WHEEL_RAD_TO_RPM        (60.0f / (2.0f * 3.1415926f * CHASSIS_WHEEL_R))  /* 线速度→转速 [m/s → rpm] */
 
@@ -21,10 +21,10 @@
 #define LEAD_SCREW_PITCH        2.07f       /* 丝杆导程 [mm/rev] — 实测: 10圈=20.7mm */
 #define LIFT_GEAR_RATIO         13.7f       /* 减速比 13.7:1 (电机侧:输出侧) */
 #define LIFT_MIN_HEIGHT         0.0f        /* 最小高度 [mm] — 零点位置 — TODO: 实测 */
-#define LIFT_MAX_HEIGHT         100.6f      /* 最大高度 [mm] — 实测: 总行程100.6mm */
+#define LIFT_MAX_HEIGHT         90.6f      /* 最大高度 [mm] — 实测: 总行程100.6mm */
 #define LIFT_SPEED              2500         /* 抬升速度 [RPM] — TODO: 实测，范围0-3000rpm */
-#define LIFT_ACCEL              150          /* 抬升加速度 — TODO: 实测 */
-#define LIFT_MANUAL_MAX_SPEED   15.0f        /* 手动控制最大抬升速率 [mm/s] */
+#define LIFT_ACCEL              255         /* 加速度档位 (0-255, 255=最快) */
+#define LIFT_MANUAL_MAX_SPEED   30.0f        /* 手动控制最大抬升速率 [mm/s] */
 #define LIFT_MOTOR_ADDR         3           /* 抬升电机地址 */
 
 /* 高度 ↔ 电机角度 换算 (含减速比) */
@@ -49,18 +49,23 @@ typedef struct
     float wz_actual;				/* 实际角速度 Z [rad/s] (编码器反馈正解) */
     float rpm_L_target;				/* 左轮目标转速 [rpm] (电机端, 已乘减速比) */
     float rpm_R_target;				/* 右轮目标转速 [rpm] (电机端, 已乘减速比) */
+    int16_t rpm_L_last_sent;        /* 上次已发送左轮命令值 (去抖用) */
+    int16_t rpm_R_last_sent;        /* 上次已发送右轮命令值 (去抖用) */
     PC_Speed_Typedef pc_speed;		/* 上位机通信速度(收发统一) */
     uint8_t init_flag;
     /* ---- 丝杆抬升 ---- */
     float lift_target_height;     /* 目标高度 [mm] */
     float lift_cur_height;        /* 当前高度 [mm] (编码器反馈) */
-    float lift_bus_voltage;       /* 丝杆电机总线电压 [mV] */
+    float bus_voltage;            /* 总线电压 [mV] (1号轮电机静止时更新) */
     uint8_t lift_homing;          /* 回零中标志 */
+    float loop_time_us;           /* 单次循环耗时 [μs] */
 } Chassis_Info_Typedef;
 
 extern Chassis_Info_Typedef Chassis;
+extern osMutexId huart10_mutex_id;
 
 void chassis_task(void);
+void Motor_Feedback_Task(void);
 void Chassis_Set_Velocity(Chassis_Info_Typedef *chassis, float vx, float vy, float wz);
 void Chassis_Stop(Chassis_Info_Typedef *chassis);
 void Chassis_Init(Chassis_Info_Typedef *chassis);

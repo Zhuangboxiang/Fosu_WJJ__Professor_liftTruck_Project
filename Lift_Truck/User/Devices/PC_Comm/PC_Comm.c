@@ -16,6 +16,7 @@
 #include "bsp_usb.h"
 #include "usbd_cdc_if.h"
 #include "chassis_task.h"
+#include "INS_task.h"
 #include <string.h>
 
 /* Defines ----------------------------------------------------------------- */
@@ -87,20 +88,26 @@ void PC_Info_Update(uint8_t *buff, uint16_t len)
  * @brief  小车→上位机 数据上传 (周期调用)
  * @param  vx/vy/vw: 速度值
  *
- * @note   发送格式 (22字节):
- *         帧头(0xAA) + Vx(f4) + Vy(f4) + Vw(f4) + mode(i4) + Reserved2(i4) + Checksum(XOR u8)
+ * @note   发送格式 (34字节):
+ *         帧头(0xAA) + Vx(f4) + Vy(f4) + Vw(f4) + Bat_V(f4) + Lift_H(f4) + Yaw(f4) + Pitch(f4) + Roll(f4) + Checksum(XOR u8)
  */
 void PC_Info_Upload(float vx, float vy, float vw)
 {
     PC_TxFrame.HEAD        = PC_TX_HEAD;
-    PC_TxFrame.Vx.fval     = vx;
-    PC_TxFrame.Vy.fval     = vy;
-    PC_TxFrame.Vw.fval     = vw;
+    PC_TxFrame.Vx     = vx;
+    PC_TxFrame.Vy     = vy;
+    PC_TxFrame.Vw     = vw;
 
-    /* 电池电压 [V] (丝杆电机静止时读数) */
-    PC_TxFrame.Bat_Pct.fval = Chassis.lift_bus_voltage * 0.001f;
+    /* 电池电压 [V] (1号轮电机静止时读数) */
+    PC_TxFrame.Bat_V = Chassis.bus_voltage * 0.001f;
 
-    PC_TxFrame.Lift_H.fval = Chassis.lift_cur_height;
+    PC_TxFrame.Lift_H = Chassis.lift_cur_height;
+
+    /* 姿态角 [rad] */
+    PC_TxFrame.Yaw   = INS.Yaw;
+    PC_TxFrame.Pitch = INS.Pitch;
+    PC_TxFrame.Roll  = INS.Roll;
+
     PC_TxFrame.Checksum    = TX_XOR_Checksum((uint8_t *)&PC_TxFrame);
 
     memcpy(PC_TxBuf, &PC_TxFrame, PC_TX_FRAME_LEN);

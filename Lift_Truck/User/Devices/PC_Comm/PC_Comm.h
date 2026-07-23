@@ -21,7 +21,7 @@
 
 /* Defines ------------------------------------------------------------------ */
 #define PC_TX_HEAD						0xAA		/* 帧头(小车→上位机) */
-#define PC_TX_FRAME_LEN					22u			/* 发送帧长度 */
+#define PC_TX_FRAME_LEN					34u			/* 发送帧: HEAD(1)+Vx/Vy/Vw(12)+Bat(4)+H(4)+Yaw/Pitch/Roll(12)+XOR(1) */
 
 #define PC_RX_HEAD						0x5A		/* 包头(上位机→小车) */
 #define PC_RX_TAIL						0xA5		/* 包尾(上位机→小车) */
@@ -31,25 +31,20 @@
 
 /* Structs ------------------------------------------------------------------ */
 /**
- * @brief 数据类型转换联合体
- */
-typedef union {
-	float fval;			/* 浮点数值 */
-	uint32_t uval;		/* 无符号整数值 */
-} PC_turn_Typedef;
-
-/**
  * @brief 发送帧结构体(小车→上位机)
- * @note  packed 防对齐, 帧头 0xAA, 固定22字节
+ * @note  packed 防对齐, 帧头 0xAA, 固定34字节
  */
 typedef struct __attribute__((packed)) {
     uint8_t HEAD;				/* 帧头: 0xAA */
-    PC_turn_Typedef  Vx;		/* X方向速度 [m/s] */
-    PC_turn_Typedef  Vy;		/* Y方向速度 [m/s] */
-    PC_turn_Typedef  Vw;		/* Z方向角速度 [rad/s] */
-    PC_turn_Typedef  Bat_Pct;	/* 电池电量 [%] */
-    PC_turn_Typedef  Lift_H;	/* 丝杆当前高度 [mm] */
-    uint8_t Checksum;			/* 校验和 (前21字节异或) */
+    float Vx;		            /* X方向速度 [m/s] */
+    float Vy;		            /* Y方向速度 [m/s] */
+    float Vw;		            /* Z方向角速度 [rad/s] */
+    float Bat_V;		        /* 电池电压 [V] */
+    float Lift_H;	            /* 丝杆当前高度 [mm] */
+    float Yaw;		            /* 偏航角 [rad] */
+    float Pitch;		        /* 俯仰角 [rad] */
+    float Roll;		            /* 横滚角 [rad] */
+    uint8_t Checksum;			/* 校验和 (前33字节异或) */
 } PC_TxFrame_Typedef;
 
 /**

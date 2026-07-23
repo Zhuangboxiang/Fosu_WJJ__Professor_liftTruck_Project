@@ -57,13 +57,13 @@
 ?*/
 
 /* 零漂校准值 - 可手动修改 */
-#define GxOFFSET 						0.00561714312f
-#define GyOFFSET 						0.00108188484f
-#define GzOFFSET 						3.32896998e-05f
-#define AxOFFSET 						0.215843439f
-#define AyOFFSET 						-0.410339475f
+#define GxOFFSET 						0.00343165034f
+#define GyOFFSET 						0.0020872422f
+#define GzOFFSET 						-0.00332231913f
+#define AxOFFSET 						-0.0269495081f
+#define AyOFFSET 						-0.143901393f
 #define AzOFFSET 						0.0f		// Z轴不减去零飘值,因为该零飘值含有重力加速度
-#define gNORM 						  9.84484291f
+#define gNORM 						  9.89786243f
 
 /* Enums -------------------------------------------------------------------- */
 /**
