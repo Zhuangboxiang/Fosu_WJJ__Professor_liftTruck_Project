@@ -244,6 +244,7 @@ static void Diff_Wheel_Calc(Chassis_Info_Typedef *chassis, float vx, float vy, f
     if (osMutexWait(huart10_mutex_id, 0) == osOK)
     {
         Stepper_Motor_Set_Speed(&chassis->Motor[WHEEL_L], motor_L, 0, 0);
+        osDelay(1);  /* 等待 DMA TX 完成，避免右轮指令被 BUSY 丢弃 */
         Stepper_Motor_Set_Speed(&chassis->Motor[WHEEL_R], motor_R, 0, 0);
         osMutexRelease(huart10_mutex_id);
     }
@@ -309,8 +310,8 @@ static void Lift_Control(Chassis_Info_Typedef *chassis)
     chassis->lift_cur_height = ANGLE_TO_HEIGHT(-chassis->Motor[LIFT].Data.pos);
 
     /* 电机几乎不动时从1号轮电机读取总线电压 [mV], 避免大电流压降 */
-    if (fabsf(chassis->Motor[WHEEL_L].Data.speed) < 2.0f)
-        chassis->bus_voltage = chassis->Motor[WHEEL_L].Data.bus_voltage;
+    if (fabsf(chassis->Motor[WHEEL_R].Data.speed) < 2.0f)
+        chassis->bus_voltage = chassis->Motor[WHEEL_R].Data.bus_voltage;
 
     /* 每轮都发绝对位置指令, 丢帧自动补 (和轮子速度模式一样) */
     if (osMutexWait(huart10_mutex_id, 0) == osOK)
