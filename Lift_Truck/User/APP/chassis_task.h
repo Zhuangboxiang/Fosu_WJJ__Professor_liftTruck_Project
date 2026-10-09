@@ -8,7 +8,7 @@
 #define CHASSIS_WHEEL_R         0.09f       /* 轮半径 [m] (直径18cm) */
 #define CHASSIS_TRACK_WIDTH     0.37f       /* 轮距(左右轮间距) [m] (37cm) */
 
-#define CHASSIS_MAX_V           0.8f        /* 最大线速度 [m/s] */
+#define CHASSIS_MAX_V           0.4f        /* 最大线速度 [m/s] */
 #define CHASSIS_MAX_W           1.57f     /* 最大角速度 [rad/s] (一圈≈4s) */
 
 #define WHEEL_RAD_TO_RPM        (60.0f / (2.0f * 3.1415926f * CHASSIS_WHEEL_R))  /* 线速度→转速 [m/s → rpm] */
@@ -17,11 +17,11 @@
 #define WHEEL_R  1
 #define LIFT     2     /* 丝杆抬升电机索引 */
 
-/* ---- 丝杆抬升参数 (单位: mm) — TODO: 实测后修改 ---- */
-#define LEAD_SCREW_PITCH        2.07f       /* 丝杆导程 [mm/rev] — 实测: 10圈=20.7mm */
-#define LIFT_GEAR_RATIO         13.7f       /* 减速比 13.7:1 (电机侧:输出侧) */
-#define LIFT_MIN_HEIGHT         0.0f        /* 最小高度 [mm] — 零点位置 — TODO: 实测 */
-#define LIFT_MAX_HEIGHT         90.6f      /* 最大高度 [mm] — 实测: 总行程100.6mm */
+/* ---- 丝杆抬升参数 (单位: mm) ---- */
+#define LEAD_SCREW_PITCH        4.0f        /* 丝杆导程 [mm/rev] — 换丝杆: 1圈=4mm */
+#define LIFT_GEAR_RATIO         15.0f       /* 减速比 15.0:1 (电机侧:输出侧) */
+#define LIFT_MIN_HEIGHT         0.0f        /* 最小高度 [mm] — 零点位置 */
+#define LIFT_MAX_HEIGHT         60.0f       /* 最大高度 [mm] — 行程60mm */
 #define LIFT_SPEED              2500         /* 抬升速度 [RPM] — TODO: 实测，范围0-3000rpm */
 #define LIFT_ACCEL              255         /* 加速度档位 (0-255, 255=最快) */
 #define LIFT_MANUAL_MAX_SPEED   30.0f        /* 手动控制最大抬升速率 [mm/s] */

@@ -102,7 +102,7 @@ void MX_FREERTOS_Init(void) {
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* definition and creation of INS_TASK */
-  osThreadDef(INS_TASK, INS_Task, osPriorityRealtime, 0, 512);
+  osThreadDef(INS_TASK, INS_Task, osPriorityRealtime, 0, 1024);
   INS_TASKHandle = osThreadCreate(osThread(INS_TASK), NULL);
 
   /* definition and creation of CHASSIS_TASK */
@@ -212,5 +212,10 @@ void Motor_Fb_Task(void const * argument)
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
-
+void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
+{
+    /* 栈溢出时停在这里，方便调试器查看 pcTaskName */
+    taskDISABLE_INTERRUPTS();
+    for (;;);
+}
 /* USER CODE END Application */
